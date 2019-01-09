@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --exit",
-    "deply": "node deploy.js"
+    "deploy": "node deploy.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +13,7 @@
     "ganache-cli": "^6.2.5",
     "mocha": "^5.2.0",
     "solc": "^0.4.25",
-    "truffle-hdwallet-provider": "^1.0.2",
+    "truffle-hdwallet-provider": "^0.0.3",
     "web3": "^1.0.0-beta.37"
   }
 }
