@@ -1,58 +1,84 @@
 pragma solidity ^0.4.25;
 
 contract Campaign {
-
     struct Request {
         string description;
-        uint amount;
+        uint amount; // in ether unit
         address recipient;
         bool complete;
-        mapping approvals;
-        uint approvalCount;
+        mapping (address => Approval) ApprovalsMap;
+        uint approvalsCount;
+    } 
+    struct Approver {
+        address wallet;
+        string name;
+        uint contribution; // in wei unit
     }
-
+    
     address public manager;
-    uint public minimumContribition;
-    address[] public approvers; //transform to mapping
-    Requests[] public ;
+    Request[] public requests;
+    uint public numRequests;
+    mapping (address => Approver) approversMap;
+    uint public numApprovers;
 
-    constructor() public {
-        //constructor function that sets the minimumContribution and the owner.
-        manager = msg.sender;
-    }
-
-    function contribute() public view payable{
-        bool isApprover = false;
-
-        for(uint i=0; i<approvers.length; i++){
-            isApprover = isApprover || (msg.sender = approvers[i]);
-        }
-        if (!isApprover) {
-            approvers.push(msg.sender);
-        }
-        //called when someone wants to donate money to the campaign and become an 'approver'
-    }
-
-    function createRequest() public view return(string description){
+    modifier restrictedFinalizeRequest() {
         require(msg.sender == manager);
-        description = _description;
-        //called by the manager to create a new spending request
+        require(msg.sender == manager);
+        
+        _;
     }
-
-    function approveRequest() public pure return(bool){
-        bool approve = false;
-
-        //called by each contributor to approve a spending request
+    
+    constructor() public  payable {
+        manager = msg.sender;
+        numRequests = 0;
+        numApprovers = 0;
     }
-
-    function finalizeRequest() public view payable{
-        if (msg.sender == manager) {
-            approvers[].filter((aprover) => aprover.yes);
-            return approvalCount
-        }
-        if (approvers.lenght % approvalCount >= 2) {
-            return 
-        }
-        //after a request has gotten enough approvals, the manager can call this to get money sent to vendor
+    
+    function contribute(string _name) public payable{
+        //called when someone wants to donate money to the campaign and become an 'approver'
+        require(msg.value >= 0.1 ether);
+        require(approversMap[msg.sender].wallet == 0x0);
+        
+        Approver memory newApprover = Approver({
+            wallet: msg.sender, 
+            name: _name, 
+            contribution: msg.value
+        });
+        approversMap[msg.sender] = newApprover;
+        numApprovers++;
+    }
+    
+    function createRequest(string _description, uint _amount, address _recipient) public returns(uint requestID) {
+        require(msg.sender == manager);
+        
+        Request memory newRequest = Request({
+            description: _description, 
+            amount: _amount, 
+            recipient: _recipient, 
+            complete: false, 
+            approvalsCount: 0
+        });
+        
+        requestID = numRequests;
+        // Creates new struct and saves in storage. We leave out the mapping type.
+        requests.push(newRequest);
+        
+        numRequests++;
+    }
+    
+    function aproveRequest(uint _requestID) public {
+        
+        require(msg.sender == ApprovalsMap[].wallet); 
+        requestID = _requestID;
+        
+        Approval memory newApproval = Request
+        
+        
+    }
+    
+    function finalizeRequest(uint _requestID) public restrictedFinalizeRequest payable returns (string requestIDComplete){
+        require(requests[requestID].complete == true);
+        requests[requestID].recipient.transfer(address(this).balance);
+        return('transaccion completada');
     }
 }
