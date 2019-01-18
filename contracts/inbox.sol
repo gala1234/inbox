@@ -12,7 +12,7 @@ contract Campaign {
     struct Approver {
         address wallet;
         string name;
-        uint contribution; // in wei unit
+        uint contribution; // in ether unit
     }
     
     address public manager;
@@ -66,19 +66,25 @@ contract Campaign {
         numRequests++;
     }
     
-    function aproveRequest(uint _requestID) public {
+    function aproveRequest(uint requestID) public view {
+        require(approversMap[msg.sender].wallet == msg.sender); 
+   
+        Approval memory newApproval = Approval({
+            address: msg.sender
+        });
+
+        Request[requestID].ApprovalsMap[newApproval] = true;
+
+        approvalsCount = Request[requestID].approvalsCount++;
         
-        require(msg.sender == ApprovalsMap[].wallet); 
-        requestID = _requestID;
-        
-        Approval memory newApproval = Request
-        
+        if (numApprovers % approvalsCount >= 2) {
+            Request[requestID].complete = true;
+            finalizeRequest(requestID);
+        }
         
     }
     
-    function finalizeRequest(uint _requestID) public restrictedFinalizeRequest payable returns (string requestIDComplete){
-        require(requests[requestID].complete == true);
+    function finalizeRequest() public restrictedFinalizeRequest payable {
         requests[requestID].recipient.transfer(address(this).balance);
-        return('transaccion completada');
     }
 }
